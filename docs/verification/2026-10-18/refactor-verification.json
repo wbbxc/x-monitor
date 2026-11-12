@@ -1,0 +1,62 @@
+{
+  "checks": [
+    {
+      "step": "总览",
+      "cards": 7,
+      "overflow": 0
+    },
+    {
+      "step": "linux.do 别名",
+      "url": "http://127.0.0.1:3996/#/collections/linux.do",
+      "view": "view-collection-platform"
+    },
+    {
+      "step": "规则标签",
+      "rules": 0,
+      "auto": false
+    },
+    {
+      "step": "新建规则",
+      "ok": true,
+      "next": "2026-10-18T14:24:41.154Z"
+    },
+    {
+      "step": "运行标签",
+      "cards": 6,
+      "rows": 19
+    },
+    {
+      "step": "第二页",
+      "items": 50,
+      "pager": "← 上一页\n第 2 / 3 页 · 共 131 条 · 每页 50 条\n下一页 →"
+    },
+    {
+      "step": "分类筛选",
+      "items": 50,
+      "pager": "← 上一页\n第 1 / 2 页 · 共 60 条 · 每页 50 条\n下一页 →"
+    },
+    {
+      "step": "采集设置",
+      "sources": 4
+    },
+    {
+      "step": "导出配置",
+      "status": "已导出 4 个来源、4 条规则到 /Users/mac/Documents/xuexi/tools/x-monitor/data/collector"
+    },
+    {
+      "step": "移动端",
+      "overflow": 0,
+      "items": 50
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "overview-desktop.png",
+    "linuxdo-desktop.png",
+    "rules-desktop.png",
+    "filter-desktop.png",
+    "settings-desktop.png",
+    "linuxdo-mobile.png",
+    "overview-mobile.png"
+  ]
+}

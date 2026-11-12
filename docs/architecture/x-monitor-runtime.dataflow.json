@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "X-Monitor 采集与应用数据流",
+    "locale": "zh-CN",
+    "output": "x-monitor-runtime.dataflow.html",
+    "viewBox": [1080, 600],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "current-path",
+        "label": "当前主路径",
+        "focus": ["x-source", "scraper", "tweets", "sqlite", "ui"],
+        "note": "从 X/mock 采集到 SQLite，再由界面读取。"
+      },
+      {
+        "id": "collection-path",
+        "label": "统一采集路径",
+        "focus": ["web-source", "collectors", "articles", "sqlite"],
+        "note": "定时/紧急规则经过统一适配器，写入去重后的 collection_items 和原始快照。"
+      },
+      {
+        "id": "consumers",
+        "label": "应用消费",
+        "focus": ["sqlite", "ui", "analyzer", "creator"],
+        "note": "持久化记录被 UI、素材分析和内容创作消费。"
+      }
+    ]
+  },
+  "stages": [
+    { "label": "外部来源" },
+    { "label": "采集入口" },
+    { "label": "规范化" },
+    { "label": "持久化" },
+    { "label": "应用消费" }
+  ],
+  "nodes": [
+    {
+      "id": "x-source",
+      "type": "external",
+      "label": "X 账号数据",
+      "sublabel": "X / mock",
+      "stage": 0,
+      "row": 0,
+      "tag": "当前"
+    },
+    {
+      "id": "web-source",
+      "type": "external",
+      "label": "统一平台来源",
+      "sublabel": "多平台 RSS / API",
+      "stage": 0,
+      "row": 2,
+      "tag": "当前"
+    },
+    {
+      "id": "scraper",
+      "type": "backend",
+      "label": "src/scraper.js",
+      "sublabel": "real / mock",
+      "stage": 1,
+      "row": 0,
+      "tag": "当前"
+    },
+    {
+      "id": "collectors",
+      "type": "backend",
+      "label": "统一采集适配器",
+      "sublabel": "framework · RSS",
+      "stage": 1,
+      "row": 2,
+      "tag": "当前"
+    },
+    {
+      "id": "tweets",
+      "type": "backend",
+      "label": "推文记录",
+      "sublabel": "worker JSON",
+      "stage": 2,
+      "row": 0,
+      "tag": "当前"
+    },
+    {
+      "id": "articles",
+      "type": "backend",
+      "label": "统一内容记录",
+      "sublabel": "items · raw · links",
+      "stage": 2,
+      "row": 2,
+      "tag": "当前"
+    },
+    {
+      "id": "sqlite",
+      "type": "database",
+      "label": "SQLite",
+      "sublabel": "xmonitor.db",
+      "stage": 3,
+      "row": 1,
+      "tag": "持久化"
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "单页 UI",
+      "sublabel": "查询 / 操作",
+      "stage": 4,
+      "row": 0,
+      "tag": "当前"
+    },
+    {
+      "id": "analyzer",
+      "type": "backend",
+      "label": "素材分析",
+      "sublabel": "src/analyzer.js",
+      "stage": 4,
+      "row": 2,
+      "tag": "当前"
+    },
+    {
+      "id": "creator",
+      "type": "backend",
+      "label": "内容创作",
+      "sublabel": "src/creator.js",
+      "stage": 4,
+      "row": 3,
+      "yOffset": -40,
+      "tag": "当前"
+    }
+  ],
+  "flows": [
+    {
+      "id": "x-to-scraper",
+      "from": "x-source",
+      "to": "scraper",
+      "label": "推文",
+      "classification": "当前抓取",
+      "variant": "emphasis"
+    },
+    {
+      "id": "web-to-collectors",
+      "from": "web-source",
+      "to": "collectors",
+      "label": "RSS / JSON / Atom / HTML",
+      "classification": "当前采集来源",
+      "variant": "emphasis",
+      "labelDy": 55
+    },
+    {
+      "id": "scraper-to-tweets",
+      "from": "scraper",
+      "to": "tweets",
+      "label": "worker JSON",
+      "classification": "当前记录",
+      "variant": "emphasis"
+    },
+    {
+      "id": "collectors-to-articles",
+      "from": "collectors",
+      "to": "articles",
+      "label": "规范化 + 去重",
+      "classification": "当前统一记录",
+      "variant": "emphasis"
+    },
+    {
+      "id": "tweets-to-sqlite",
+      "from": "tweets",
+      "to": "sqlite",
+      "label": "tweets",
+      "classification": "当前持久化",
+      "variant": "emphasis"
+    },
+    {
+      "id": "articles-to-sqlite",
+      "from": "articles",
+      "to": "sqlite",
+      "label": "collection_items",
+      "classification": "当前持久化",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sqlite-to-ui",
+      "from": "sqlite",
+      "to": "ui",
+      "label": "列表",
+      "classification": "当前读取"
+    },
+    {
+      "id": "sqlite-to-analyzer",
+      "from": "sqlite",
+      "to": "analyzer",
+      "label": "new",
+      "classification": "当前分析输入",
+      "labelDy": -80,
+      "labelDx": 90
+    },
+    {
+      "id": "sqlite-to-creator",
+      "from": "sqlite",
+      "to": "creator",
+      "label": "approved",
+      "classification": "当前创作输入",
+      "labelDy": 80
+    }
+  ]
+}

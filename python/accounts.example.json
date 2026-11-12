@@ -1,0 +1,32 @@
+# twscrape 登录账号配置（真实抓取模式使用）
+#
+# 两种认证方式，任选其一（推荐方式 B）：
+#
+# ── 方式 A：账号密码登录 ──
+#   填写 username/password/email/email_password。
+#   注意：X 风控严格，密码登录可能被验证码/二次验证拦截而失败。
+#   要求：账号未开启两步验证(2FA)；建议先用浏览器手动登录一次该账号。
+#
+# ── 方式 B：浏览器 Cookie（推荐，最可靠）──
+#   在浏览器登录 x.com，按 F12 → 应用/Application → Cookie → https://x.com，
+#   复制 auth_token 与 ct0 两个 cookie 的值，填入下方 cookies 对象。
+#   推荐写成 JSON 对象（cookie 值可能含 " 引号等特殊字符，对象格式无需转义）；
+#   也可写成字符串 "auth_token=xxx; ct0=yyy"（值两端的引号会被自动清理）。
+#   无需密码即可直接抓取，绕过登录风控。
+#
+# 多账号轮换可添加多个对象。
+# 若本机不能直连 X（网络被拦截），请在 .env 中配置 X_PROXY（推荐），
+# 或在此处为单个账号添加 "proxy": "http://127.0.0.1:10808" 字段。
+
+[
+  {
+    "username": "你的X用户名",
+    "password": "",
+    "email": "",
+    "email_password": "",
+    "cookies": {
+      "auth_token": "浏览器中复制的 auth_token 值",
+      "ct0": "浏览器中复制的 ct0 值"
+    }
+  }
+]

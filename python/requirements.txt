@@ -1,0 +1,3 @@
+# twscrape 抓取（真实模式需要）
+# 安装: pip install -r requirements.txt
+twscrape>=0.3.0

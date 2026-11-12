@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "step": "设置弹窗自动采集字段",
+      "auto": true,
+      "interval": "30",
+      "ruleInterval": "0",
+      "rules": 2
+    },
+    {
+      "step": "开启全局自动采集",
+      "ok": true,
+      "interval": 30,
+      "next": "2026-10-18T14:07:10.440Z"
+    },
+    {
+      "step": "规则间隔改为手动",
+      "ok": true,
+      "rule": {
+        "slug": "rule-mvdvdluc",
+        "name": "自动规则",
+        "kind": "keyword",
+        "value": "auto",
+        "enabled": true,
+        "intervalMin": 0,
+        "createdAt": "2026-10-18T13:37:05.749Z",
+        "lastRunAt": null,
+        "nextRunAt": null
+      }
+    },
+    {
+      "step": "关键词列表显示手动规则",
+      "ok": true,
+      "text": "待采集\n风控\ngpt 风控 降智\n手动\n仅手动\n上次 2026-10-18 10:15\n采集\n待采集\nauto\n自动规则\n手动\n仅手动\n尚未采集\n采集"
+    },
+    {
+      "step": "关闭全局自动采集",
+      "ok": true
+    }
+  ],
+  "screenshots": [
+    "linuxdo-settings-desktop.png",
+    "linuxdo-settings-mobile.png",
+    "mobile settings overflow=0"
+  ]
+}

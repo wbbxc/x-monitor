@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>X-Monitor 采集器实测报告 · 2026-09-29</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1017;--panel:#121b26;--line:#263548;--text:#e6edf5;--muted:#8fa1b5;--cyan:#35d4c4;--green:#53d18c;--amber:#f5bd54;--red:#ff7d85}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}main{max-width:1180px;margin:0 auto;padding:36px 22px 64px}h1{font-size:30px;line-height:1.2;margin:0 0 8px}h2{font-size:18px;margin:30px 0 12px}.sub{color:var(--muted);margin:0}.meta{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--muted)}.pill strong{color:var(--text)}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:15px}.card b{display:block;font-size:24px;margin-top:4px}.ok{color:var(--green)}.partial{color:var(--amber)}.fail{color:var(--red)}.muted{color:var(--muted)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px;background:var(--panel)}table{width:100%;border-collapse:collapse;min-width:920px}th,td{text-align:left;padding:12px 13px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-size:12px;font-weight:600}tr:last-child td{border-bottom:0}.status{font-weight:700}.status.ok{color:var(--green)}.status.partial{color:var(--amber)}.status.error{color:var(--red)}code{font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#b9c9da;word-break:break-all}.notes{display:grid;gap:10px}.note{border-left:3px solid var(--line);padding:10px 13px;background:rgba(255,255,255,.025)}.note.ok{border-left-color:var(--green)}.note.partial{border-left-color:var(--amber)}.note.error{border-left-color:var(--red)}a{color:var(--cyan)}@media(max-width:720px){main{padding:24px 14px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:24px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>X-Monitor 采集器实测报告</h1>
+  <p class="sub">逐个适配器真实请求，失败后继续测试下一个；报告不使用账号 Cookie、Token 或其它真实凭据。</p>
+  <div class="meta"><span class="pill">测试时间 <strong>2026-09-29</strong></span><span class="pill">请求方式 <strong>Node 原生 HTTP</strong></span><span class="pill">单次超时 <strong>约 6 秒</strong></span><span class="pill">重试 <strong>0 次</strong></span></div>
+
+  <div class="summary">
+    <div class="card"><span class="muted">适配器总数</span><b>7</b></div>
+    <div class="card"><span class="muted">有效采集</span><b class="ok">2</b></div>
+    <div class="card"><span class="muted">部分成功</span><b class="partial">1</b></div>
+    <div class="card"><span class="muted">未取到有效内容</span><b class="fail">4</b></div>
+  </div>
+
+  <h2>适配器结果</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>平台</th><th>结论</th><th>实际尝试</th><th>采集结果</th><th>失败 / 说明</th><th>建议</th></tr></thead>
+    <tbody>
+      <tr><td><strong>全网网页</strong><br><span class="muted">web</span></td><td class="status ok">可用</td><td>RFC 9110 文本页<br><code>https://www.rfc-editor.org/rfc/rfc9110.txt</code></td><td>1 条，字段完整；HTTP 200，保留网页快照。</td><td>无</td><td>普通网页采集可用。关键词模式仍建议配置稳定 RSS 模板。</td></tr>
+      <tr><td><strong>Google News / Web</strong><br><span class="muted">google</span></td><td class="status partial">部分可用</td><td>Google News RSS 超时后切换 Bing RSS<br><code>https://www.bing.com/news/search?q=artificial+intelligence&amp;format=rss</code></td><td>备用链路返回 1 条，但实际是 Bing 搜索页快照，不是结构化新闻条目。</td><td>Google RSS 请求超时；Bing 返回 HTML 页面。</td><td>接入代理或稳定 RSS 源；不要把当前 Bing 快照当作高质量新闻结果。</td></tr>
+      <tr><td><strong>Hugging Face Daily Papers</strong><br><span class="muted">huggingface</span></td><td class="status error">未取到</td><td><code>https://huggingface.co/api/daily_papers</code></td><td>0 条</td><td>请求超时，当前网络无法完成 HF API 请求。</td><td>为采集器配置可访问 Hugging Face 的 HTTP/HTTPS 代理后重试。</td></tr>
+      <tr><td><strong>arXiv</strong><br><span class="muted">arxiv</span></td><td class="status ok">可用</td><td>Atom electron query<br><code>https://export.arxiv.org/api/query?search_query=all:electron&amp;start=0&amp;max_results=2</code></td><td>2 条，2 条字段完整；HTTP 200。</td><td>无</td><td>Atom 解析、作者、摘要、链接和去重链路可用。</td></tr>
+      <tr><td><strong>V2EX</strong><br><span class="muted">v2ex</span></td><td class="status error">未取到</td><td>Topics JSON；失败后 V2EX RSS</td><td>0 条</td><td>JSON 与 RSS 均超时。</td><td>检查网络出口或配置代理；恢复连通后无需修改适配器。</td></tr>
+      <tr><td><strong>linux.do</strong><br><span class="muted">linux.do</span></td><td class="status error">未取到</td><td>Latest JSON；失败后 latest.rss</td><td>0 条</td><td>JSON 与 RSS 均超时。</td><td>配置代理或在可访问 linux.do 的网络环境重试。</td></tr>
+      <tr><td><strong>Telegram</strong><br><span class="muted">telegram</span></td><td class="status error">未取到</td><td>Bot API 无凭据探测<br><code>https://api.telegram.org/bot.../getUpdates</code></td><td>0 条</td><td>未配置 Bot Token；当前请求也未能完成。</td><td>在采集设置中配置 Bot Token，或提供频道 RSS/JSON 地址后再测。</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>结论</h2>
+  <div class="notes">
+    <div class="note ok"><strong>已经确认可用：</strong>arXiv Atom、普通网页快照采集。</div>
+    <div class="note partial"><strong>需要优化：</strong>Google 适配器的主 RSS 当前超时，Bing 备用只返回搜索页快照，建议配置代理或稳定 RSS 模板。</div>
+    <div class="note error"><strong>当前环境不可用：</strong>Hugging Face、V2EX、linux.do 主要是网络连通性问题；Telegram 还缺少登录凭据。</div>
+    <div class="note"><strong>下一步：</strong>打开 <a href="/#/settings/collectors">采集设置</a>，为需要登录或受网络限制的平台配置代理、Cookie、Token 或 Headers；保存后重新运行紧急采集即可。</div>
+  </div>
+  <p class="muted" style="margin-top:28px">报告来源：x-monitor 当前适配器实现与本机实时探测。测试失败只表示本次网络/认证条件下未获得有效内容，不代表目标平台永久不可用。</p>
+</main>
+</body>
+</html>

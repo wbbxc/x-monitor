@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-Monitor · 采集控制台</title>
+  <link rel="stylesheet" href="/style.css?v=15" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230f1520'/><text x='32' y='42' text-anchor='middle' font-family='system-ui,sans-serif' font-size='26' font-weight='700' fill='%235b8cff'>XM</text></svg>" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">跳到主要内容</a>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">XM</div>
+        <div class="brand-text">
+          <div class="brand-name">X-Monitor</div>
+          <div class="brand-sub">采集控制台</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav" aria-label="主导航">
+        <div class="nav-group">
+          <div class="nav-label">工作空间</div>
+          <button class="nav-item active" data-view="dashboard" data-short="工作台" aria-current="page">工作台</button>
+          <button class="nav-item" data-view="collections" data-short="采集">采集中心</button>
+          <button class="nav-item" data-view="content" data-short="内容">内容库<span class="nav-badge hidden" id="badgePending">0</span></button>
+          <button class="nav-item" data-view="creations" data-short="创作">创作</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">系统</div>
+          <button class="nav-item" data-view="settings" data-short="设置">设置</button>
+        </div>
+      </nav>
+      <div class="sidebar-foot">
+        <button class="theme-btn" id="themeToggle" type="button" aria-label="切换主题">浅色模式</button>
+        <div class="pipeline-status" id="pipelineStatus">
+          <span class="dot" id="pipelineDot"></span>
+          <span id="pipelineText">流水线空闲</span>
+        </div>
+        <div class="scrape-mode" id="scrapeModeTag">模式 --</div>
+      </div>
+    </aside>
+
+    <main class="main" id="mainContent">
+      <div class="topbar">
+        <div class="topbar-context"><span id="topbarSection">工作台</span><span class="topbar-sep">/</span><strong id="topbarView">总览</strong></div>
+        <div class="topbar-actions">
+          <button class="btn sm ghost" type="button" data-goto="guide">帮助</button>
+          <button class="btn sm ghost topbar-refresh" id="topbarRefresh" type="button">刷新</button>
+          <button class="notif-bell" id="notificationBell" type="button" aria-label="打开通知" aria-expanded="false">
+            通知<span class="notif-badge hidden" id="notificationBadge">0</span>
+          </button>
+        </div>
+      </div>
+      <div class="notif-overlay" id="notificationOverlay" hidden></div>
+      <aside class="notif-drawer" id="notificationDrawer" hidden role="dialog" aria-modal="true" aria-labelledby="notificationTitle">
+        <header class="notif-head">
+          <div><strong id="notificationTitle">通知</strong><span class="tip" id="notificationUnreadHint"></span></div>
+          <button class="btn sm ghost" type="button" id="notificationClose" aria-label="关闭通知">关闭</button>
+        </header>
+        <div class="notif-filters">
+          <button class="tab active" type="button" data-notif-filter="all">全部</button>
+          <button class="tab" type="button" data-notif-filter="unread">未读</button>
+          <select id="notificationPlatform" aria-label="按平台筛选通知"><option value="">全部平台</option></select>
+          <button class="btn sm ghost" type="button" id="notificationReadAll">全部已读</button>
+        </div>
+        <div class="notif-list" id="notificationList"></div>
+      </aside>
+      <nav class="workspace-nav" id="workspaceNav" aria-label="工作区导航" hidden></nav>
+      <!-- 仪表盘 -->
+      <section class="view active" id="view-dashboard">
+        <header class="page-head">
+          <div>
+            <h1>工作台</h1>
+            <p class="sub">先处理素材，再查看采集动态；配置留在各自工作区。</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn primary" id="btnQuickStart" type="button">新增采集</button>
+          </div>
+        </header>
+
+        <!-- 首次使用引导 -->
+        <div class="start-card" id="onboarding" hidden></div>
+
+        <div class="stat-grid" id="statGrid"></div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-head"><h2>待处理素材</h2><button class="link" data-goto="materials">查看素材库</button></div>
+            <div class="mini-list" id="dashMaterials"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>需要关注</h2><button class="link" data-goto="logs">全部运行日志</button></div>
+            <div class="mini-list" id="dashLogs"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 采集详情 -->
+      <section class="view collection-route-view" id="view-collection-platform">
+        <header class="page-head">
+          <div><h1 id="collectionPlatformTitle">采集详情</h1><p class="sub" id="collectionPlatformSub">来源、规则与内容</p></div>
+          <div class="head-actions"><button class="btn ghost" onclick="location.hash='/collections'">所有平台</button><button class="btn ghost" id="btnPlatformSettings">来源与规则</button><button class="btn primary" id="btnPlatformRun">立即采集</button></div>
+        </header>
+        <div id="platformSummary"></div>
+        <div class="modal-tabs" id="platformTabs" role="tablist" aria-label="平台采集视图">
+          <button class="tab active" type="button" data-platform-tab="items" role="tab" aria-selected="true">内容</button>
+          <button class="tab" type="button" data-platform-tab="rules" role="tab" aria-selected="false">来源与规则</button>
+          <button class="tab" type="button" data-platform-tab="runs" role="tab" aria-selected="false">运行</button>
+        </div>
+        <div data-platform-panel="items">
+          <div class="panel">
+            <div class="panel-head"><h2>内容 <span class="badge" id="platformSourceStatus">--</span></h2><input class="search" id="platformItemSearch" aria-label="搜索采集内容" placeholder="搜索标题 / 作者 / 标签…" /></div>
+            <div class="linuxdo-filters" id="platformFilters">
+              <select id="platformCategoryFilter" aria-label="按分类筛选"><option value="">全部分类</option></select>
+              <input id="platformTagFilter" aria-label="按标签筛选" class="search" placeholder="按标签筛选，例如 人工智能" />
+              <button class="btn sm ghost" id="btnPlatformClearFilters" type="button">清除筛选</button>
+            </div>
+            <div class="collection-item-list" id="platformItemList"></div>
+            <div class="linuxdo-pager" id="platformPager"></div>
+          </div>
+        </div>
+        <div data-platform-panel="rules" hidden>
+          <div class="workspace-context panel">
+            <label for="platformManageSource">管理来源</label>
+            <select id="platformManageSource"><option value="">当前平台的全部来源</option></select>
+            <span class="tip">来源、规则在这里一起管理，不用离开当前平台。</span>
+          </div>
+          <div id="platformSourcesSlot"></div>
+          <div class="panel">
+            <div class="panel-head"><h2>采集规则</h2><span class="tip" id="platformRulesHint"></span></div>
+            <div class="platform-auto-row">
+              <label class="linuxdo-check"><input id="platformAutoLatest" type="checkbox" /> 自动采集最新话题</label>
+              <label>间隔 <input id="platformAutoInterval" type="number" min="5" max="10080" value="60" /> 分钟</label>
+            </div>
+            <div class="collection-list" id="platformRuleList"></div>
+            <details class="rule-editor" id="platformRuleEditor">
+              <summary>新增规则<span class="tip">按需展开，已有规则不受影响</span></summary>
+            <form class="rule-form" id="platformRuleForm">
+              <div class="form-grid">
+                <label class="form-field"><span>来源</span><select name="source" id="platformRuleSource"></select></label>
+                <label class="form-field"><span>规则名称</span><input name="name" placeholder="例如 AI 话题" required /></label>
+                <label class="form-field"><span>规则类型</span><select name="kind" id="platformRuleKind"><option value="keyword">关键词</option><option value="full">全量 / 最新</option></select></label>
+                <label class="form-field"><span>关键词 / 值</span><input name="value" id="platformRuleValue" placeholder="关键词（全量可留空）" /></label>
+                <label class="form-field"><span>自动间隔（分钟）</span><input name="interval" type="number" min="0" max="10080" value="60" title="0 表示仅手动" /></label>
+                <div class="form-field form-field-inline">
+                  <span>通知</span>
+                  <label class="toggle-inline"><input name="notify" type="checkbox" checked /> 新内容</label>
+                  <label class="toggle-inline"><input name="notifyUpdates" type="checkbox" /> 状态更新</label>
+                </div>
+              </div>
+              <div class="github-quick" id="platformGitHubFields" hidden>
+                <div class="form-field">
+                  <span>监控内容</span>
+                  <div class="check-grid">
+                    <label class="toggle-inline"><input name="ghEvents" type="checkbox" value="releases" checked /> Releases</label>
+                    <label class="toggle-inline"><input name="ghEvents" type="checkbox" value="issues" /> Issues</label>
+                    <label class="toggle-inline"><input name="ghEvents" type="checkbox" value="pulls" checked /> Pull Requests</label>
+                    <label class="toggle-inline"><input name="ghEvents" type="checkbox" value="discussions" /> Discussions</label>
+                    <label class="toggle-inline"><input name="ghEvents" type="checkbox" value="branches" /> 分支提交 / 代码改动</label>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <label class="form-field"><span>监控分支</span><input name="ghBranches" placeholder="main, dev（留空=默认分支）" /></label>
+                  <div class="form-field-inline">
+                    <label class="toggle-inline"><input name="ghCodeChanges" type="checkbox" checked /> 采集代码改动</label>
+                    <label class="toggle-inline"><input name="ghMergeCommits" type="checkbox" /> 包含 merge commit</label>
+                  </div>
+                </div>
+                <p class="form-hint">勾选“分支提交”后才会采集提交和代码改动；分支留空表示默认分支。高级 JSON 中的同名字段会覆盖这里。</p>
+              </div>
+              <label class="toggle-inline advanced-toggle"><input id="advancedToggle" type="checkbox" /> 显示高级选项</label>
+              <details class="form-advanced" id="platformAdvanced" hidden>
+                <summary>高级：查询选项与匹配条件</summary>
+                <div class="form-grid">
+                  <label class="form-field"><span>查询选项 JSON</span><textarea name="options" rows="3" placeholder='例如 {"events":["releases"]}'></textarea></label>
+                  <label class="form-field"><span>匹配条件 JSON</span><textarea name="match" rows="3" placeholder='例如 {"includeAny":["AI"],"excludeAny":["招聘"]}'></textarea></label>
+                </div>
+              </details>
+              <div class="form-actions">
+                <span class="form-hint">间隔为 0 时仅手动执行；通知只影响站内通知。</span>
+                <button class="btn primary" type="submit">新建规则</button>
+              </div>
+            </form>
+            </details>
+          </div>
+        </div>
+        <div data-platform-panel="runs" hidden>
+          <div class="panel"><div class="linuxdo-stats wide" id="platformRunStats"></div></div>
+          <div class="panel">
+            <div class="panel-head"><h2>任务队列</h2><span class="tip" id="platformQueueHint"></span></div>
+            <div class="linuxdo-stats" id="platformQueueStats"></div>
+            <div class="collection-list" id="platformQueueList"></div>
+          </div>
+          <div class="panel"><div class="log-table-wrap"><table class="log-table"><thead><tr><th scope="col">时间</th><th scope="col">模式</th><th scope="col">状态</th><th scope="col">尝试</th><th scope="col">数量</th><th scope="col">耗时</th><th scope="col">错误</th></tr></thead><tbody id="platformRunBody"></tbody></table></div></div>
+        </div>
+      </section>
+
+      <!-- 单条内容详情页 -->
+      <section class="view collection-route-view" id="view-collection-detail">
+        <header class="page-head"><div><h1 id="collectionDetailTitle">采集内容</h1><p class="sub" id="collectionDetailMeta"></p></div><div class="head-actions"><button class="btn ghost" id="collectionDetailBack">返回平台</button></div></header>
+        <article class="panel collection-detail"><div class="collection-detail-content" id="collectionDetailContent"></div><div class="collection-detail-links" id="collectionDetailLinks"></div><details><summary>原始快照</summary><pre id="collectionDetailRaw"></pre></details></article>
+      </section>
+
+      <!-- 来源与规则页 -->
+      <section class="view collection-route-view" id="view-collector-settings">
+        <header class="page-head"><div><h1>全部来源</h1><p class="sub">集中查看已添加来源；打开对应平台即可一起管理来源与规则。</p></div><div class="head-actions"><button class="btn primary" type="button" data-quick-start>新增采集</button></div></header>
+        <div id="collectorSettingsHome">
+        <div id="collectorSettingsWorkspace">
+        <div class="panel"><div class="panel-head"><h2>已添加来源</h2><span class="badge" id="collectorSettingsCount">--</span></div><div class="collector-settings-list" id="collectorSettingsList"></div></div>
+        <details class="panel source-add" id="collectorAddSection">
+          <summary>手动添加来源<span class="tip">已有任务用上方列表；第一次采集可用“新增采集”</span></summary>
+        <div class="panel template-panel">
+          <div class="panel-head"><h2>从模板开始</h2><span class="tip">只填表，不直接写库；确认后再保存</span></div>
+          <div class="template-grid" id="sourceTemplates"></div>
+          <p class="form-hint" id="collectorTemplateHint">选择一个模板会填入示例值，请改成你自己的仓库、关键词或社区后再保存。</p>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>新增来源</h2><span class="tip">不知道填什么？粘贴链接后点“识别并填充”，或先用上面的模板</span></div>
+          <form class="collector-add-form" id="collectorAddForm">
+            <div class="form-section-title">平台与链接</div>
+            <div class="collector-setting-grid">
+              <label>平台<select id="collectorAddPlatform" name="platform"></select></label>
+              <label>识别链接<input id="collectorDetectUrl" aria-label="识别采集链接" type="url" placeholder="粘贴 x / github / hf-mirror / macos.do / t.me 链接" /></label>
+              <div class="setting-actions" style="grid-column:1/-1"><button class="btn sm ghost" id="btnCollectorDetect" type="button">识别并填充</button><span class="tip" id="collectorDetectHint">识别不需要网络；探活失败不影响建议</span></div>
+              <label>名称<input id="collectorAddName" name="name" placeholder="例如 arXiv cs.AI" required /></label>
+              <label>链接<input id="collectorAddUrl" name="url" type="url" placeholder="https://…" /></label>
+            </div>
+            <details class="form-advanced" id="collectorAdvanced">
+              <summary>高级：平台配置与认证（通常留空）</summary>
+              <div class="collector-setting-grid">
+                <label class="span-2">平台配置 JSON<textarea id="collectorAddConfig" name="config" rows="6" placeholder='{"maxResults":50}'></textarea></label>
+                <div class="collector-config-hint span-2" id="collectorAddConfigHint"></div>
+                <label>认证类型<select id="collectorAddAuthType" name="authType">
+                  <option value="none">不使用认证</option>
+                  <option value="cookie">Cookie</option>
+                  <option value="bearer">Bearer Token</option>
+                  <option value="token">Token</option>
+                  <option value="api_key">API Key</option>
+                  <option value="basic">Basic</option>
+                  <option value="headers">Headers</option>
+                  <option value="fields">多字段凭据（JSON）</option>
+                </select></label>
+                <label>认证 JSON<textarea id="collectorAddAuth" name="auth" rows="3" placeholder='{"cookies":{"session":"…"}}'></textarea></label>
+              </div>
+            </details>
+            <div class="form-actions"><span class="form-hint">认证留空则暂不写入密钥；保存后可在来源列表中继续编辑。</span><button class="btn primary" type="submit">新增来源</button></div>
+          </form>
+        </div>
+        </details>
+        <details class="panel config-tools">
+          <summary>高级：配置文件<span class="tip">data/collector/ · 导入与导出</span></summary>
+          <div class="setting-actions"><button class="btn ghost" id="btnExportConfig">导出 YAML</button><button class="btn ghost" id="btnImportConfig">导入 YAML</button><span class="tip" id="configFileStatus"></span></div>
+        </details>
+        </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-content">
+        <header class="page-head">
+          <div><h1>原始内容</h1><p class="sub">浏览各平台采集的原始内容，按平台、来源和关键词筛选。</p></div>
+        </header>
+        <div class="panel">
+          <div class="content-filters">
+            <label>平台<select id="contentPlatform"><option value="">全部采集平台</option></select></label>
+            <label>来源<select id="contentSource"><option value="">全部来源</option></select></label>
+            <label class="grow">搜索<input class="search" id="contentSearch" type="search" placeholder="搜索标题 / 正文 / 作者…" /></label>
+          </div>
+          <div class="panel-head"><h2>采集内容 <span class="badge" id="contentCount">--</span></h2><button class="link" type="button" data-goto="collections">管理采集</button></div>
+          <div class="collection-item-list" id="contentList"></div>
+          <div class="linuxdo-pager" id="contentPager"></div>
+        </div>
+      </section>
+
+      <!-- 素材库 -->
+      <section class="view" id="view-materials">
+        <header class="page-head">
+          <div>
+            <h1>素材库</h1>
+            <p class="sub">LLM 自动筛选的创意素材，人工确认后即可一键创作</p>
+          </div>
+          <div class="head-actions">
+            <input class="search" id="materialSearch" aria-label="搜索素材" placeholder="搜索标题 / 标签 / 摘要…" />
+          </div>
+        </header>
+        <div class="tabs" id="materialTabs">
+          <button class="tab active" data-status="all">全部</button>
+          <button class="tab" data-status="pending">待确认</button>
+          <button class="tab" data-status="approved">已确认</button>
+          <button class="tab" data-status="rejected">已拒绝</button>
+        </div>
+        <div class="material-grid" id="materialList"></div>
+        <div class="load-more"><button class="btn ghost" id="btnMoreMaterials" type="button" hidden>加载更多</button></div>
+        <div class="empty" id="materialEmpty" hidden><strong>还没有素材</strong><span>运行一次抓取并分析，符合阈值的素材会出现在这里。</span><div class="empty-actions"><button class="btn sm primary" type="button" onclick="$('#btnRunNow').click()">立即抓取并分析</button><button class="btn sm ghost" type="button" data-goto="accounts">去监控账号</button></div></div>
+      </section>
+
+      <!-- 抓取推文 -->
+      <section class="view" id="view-tweets">
+        <header class="page-head">
+          <div>
+            <h1>抓取推文</h1>
+            <p class="sub">系统抓取的所有 X 推文原文、互动数据与素材入库状态</p>
+          </div>
+          <div class="head-actions">
+            <input class="search" id="tweetSearch" aria-label="搜索推文" placeholder="搜索推文内容 / 作者…" />
+          </div>
+        </header>
+        <div class="tweet-list" id="tweetList"></div>
+        <div class="load-more"><button class="btn ghost" id="btnMoreTweets" type="button" hidden>加载更多</button></div>
+        <div class="empty" id="tweetEmpty" hidden><strong>还没有推文</strong><span>点击「立即抓取并分析」开始采集，或先在监控账号中添加目标。</span><div class="empty-actions"><button class="btn sm primary" type="button" onclick="$('#btnRunNow').click()">立即抓取并分析</button><button class="btn sm ghost" type="button" data-goto="accounts">去监控账号</button></div></div>
+      </section>
+
+      <!-- 创作记录 -->
+      <section class="view" id="view-creations">
+        <header class="page-head">
+          <div>
+            <h1>创作</h1>
+            <p class="sub">基于已确认素材自动生成的文章 / 配图方案 / 视频脚本</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn primary" id="btnCreateFromMaterials" type="button">从已确认素材开始</button>
+            <button class="btn ghost" id="btnRefreshCreations">刷新</button>
+          </div>
+        </header>
+        <div class="creation-list" id="creationList"></div>
+        <div class="empty" id="creationEmpty" hidden><strong>还没有创作记录</strong><span>确认一条素材后，可以生成文章、配图方案或视频脚本。</span><div class="empty-actions"><button class="btn sm primary" type="button" data-goto="materials">去素材库确认</button></div></div>
+      </section>
+
+      <!-- 监控账号 -->
+      <section class="view" id="view-accounts">
+        <header class="page-head">
+          <div>
+            <h1>X 监控账号</h1>
+            <p class="sub">管理要跟踪的 X 账号，手动抓取或分析推文。</p>
+          </div>
+        </header>
+        <div class="panel">
+          <div class="panel-head"><h2>X 抓取与分析</h2><div class="head-actions"><button class="btn ghost" id="btnScrapeOnly" type="button">仅抓取 X 推文</button><button class="btn primary" id="btnRunNow" type="button">抓取并分析 X 推文</button><button class="btn ghost" type="button" data-goto="tweets">查看推文</button></div></div>
+          <form class="add-row" id="addAccountForm">
+            <input class="search grow" id="accountInput" placeholder="X 用户名，如 karpathy（可带 @）" required />
+            <button class="btn primary" type="submit">添加账号</button>
+          </form>
+        </div>
+        <div class="account-list" id="accountList"></div>
+        <div class="hint">
+          真实抓取需在 <code>python/accounts.json</code> 配置 twscrape 登录账号；
+          未配置时自动使用内置演示数据，可完整跑通全流程。
+        </div>
+      </section>
+
+      <!-- 采集 -->
+      <section class="view" id="view-collections">
+        <header class="page-head">
+          <div><h1>采集中心</h1><p class="sub">选择平台，在一个工作区管理内容、来源、规则和运行。</p></div>
+          <div class="head-actions">
+            <button class="btn primary" type="button" data-quick-start>新增采集</button>
+            <button class="btn ghost" id="btnCollectorSettings">全部来源</button>
+            <button class="btn ghost" id="btnCollectionScheduled">检查定时规则</button>
+          </div>
+        </header>
+        <div class="platform-grid" id="collectionPlatformCards"></div>
+        <details class="panel collection-history">
+          <summary>最近运行<span class="tip">展开查看明细</span></summary>
+          <div class="log-table-wrap"><table class="log-table"><thead><tr><th scope="col">时间</th><th scope="col">平台</th><th scope="col">状态</th><th scope="col">数量</th><th scope="col">错误</th></tr></thead><tbody id="collectionRunBody"></tbody></table></div>
+        </details>
+      </section>
+
+      <!-- 运行日志 -->
+      <section class="view" id="view-logs">
+        <header class="page-head">
+          <div>
+            <h1>运行日志</h1>
+            <p class="sub">抓取 / 分析 / 创作流水线历史</p>
+          </div>
+        </header>
+        <div class="log-table-wrap">
+          <table class="log-table" id="logTable">
+            <thead><tr><th scope="col">时间</th><th scope="col">类型</th><th scope="col">详情</th><th scope="col">状态</th></tr></thead>
+            <tbody id="logBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 使用指南 -->
+      <section class="view" id="view-guide">
+        <header class="page-head">
+          <div><h1>使用指南</h1><p class="sub">第一次用，从这里开始。先选目标，再按步骤走，不需要先读代码或手写 JSON。</p></div>
+        </header>
+        <div class="guide-hero">
+          <div>
+            <h2>3 分钟完成第一次采集</h2>
+            <p>选一个目标，填最少的信息，确认后系统会创建来源和规则。你可以先试跑一次，也可以稍后手动运行。</p>
+            <div class="head-actions">
+              <button class="btn primary" type="button" data-quick-start>打开快速开始</button>
+              <button class="btn ghost" type="button" data-goto="collector-settings">查看全部来源</button>
+              <button class="btn ghost" type="button" data-goto="collections">去采集中心</button>
+            </div>
+          </div>
+          <div class="guide-note">不用先配置全部平台。先跑通一个 GitHub 仓库或一个关键词，再逐步增加来源。</div>
+        </div>
+
+        <div class="guide-grid">
+          <section class="panel">
+            <div class="panel-head"><h2>四个概念</h2><span class="tip">记住这四个词就够了</span></div>
+            <div class="concept-grid">
+              <div class="concept"><strong>来源</strong><span>从哪里采。比如一个 GitHub 仓库、一个 arXiv 关键词、一个 subreddit。</span></div>
+              <div class="concept"><strong>规则</strong><span>采什么。比如仓库的 Releases 和分支提交，或某个关键词的最新论文。</span></div>
+              <div class="concept"><strong>匹配条件</strong><span>留下什么。比如必须包含 AI，或排除招聘。第一次用可以先不填。</span></div>
+              <div class="concept"><strong>通知</strong><span>提醒什么。规则命中新内容后，通知会出现在右上角“通知”里。</span></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>三分钟上手</h2><span class="tip">按顺序点按钮即可</span></div>
+            <ol class="guide-steps">
+              <li><strong>配置 LLM</strong><span>在设置里填 Base URL、API Key 和模型。只做采集可不配，分析和创作需要。</span><button class="link" type="button" data-goto="settings">去设置</button></li>
+              <li><strong>添加来源</strong><span>在采集中心打开对应平台，进入“来源与规则”选模板或填写链接。</span><button class="link" type="button" data-goto="collections">去添加</button></li>
+              <li><strong>创建规则</strong><span>在同一平台的“来源与规则”中展开“新增规则”。GitHub 可自动带入来源仓库，再调整分支和代码改动。</span><button class="link" type="button" data-goto="collections">去采集中心</button></li>
+              <li><strong>运行并查看</strong><span>点“立即采集”，稍后在内容、通知或运行日志里看结果。</span><button class="link" type="button" data-quick-start>快速开始</button></li>
+            </ol>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head"><h2>平台怎么选</h2><span class="tip">先按目标找一行</span></div>
+          <div class="log-table-wrap guide-table"><table class="log-table">
+            <thead><tr><th scope="col">想监控什么</th><th scope="col">选哪个平台</th><th scope="col">规则值填什么</th><th scope="col">认证 / 提示</th></tr></thead>
+            <tbody>
+              <tr><td>仓库发布、分支代码、Issue / PR</td><td>GitHub</td><td><code>owner/repo</code>，例如 <code>openai/openai-node</code></td><td>公开仓库可不填；分支代码默认开启，可在规则里关闭</td></tr>
+              <tr><td>论文关键词、作者、分类</td><td>arXiv</td><td>关键词，例如 <code>large language model</code></td><td>公开 API，无需认证</td></tr>
+              <tr><td>每日论文、模型更新</td><td>Hugging Face</td><td>关键词或全量</td><td>可选 Token；支持 hf-mirror</td></tr>
+              <tr><td>全网网页、新闻、站点搜索</td><td>Google / 通用 Web</td><td>关键词或站点 URL</td><td>Google 需要 CSE；Web 可直接填 RSS / 列表页</td></tr>
+              <tr><td>X 账号推文</td><td>X / Twitter</td><td>账号用户名</td><td>需配置 <code>python/accounts.json</code>；未配置时用演示数据</td></tr>
+              <tr><td>Reddit 社区、用户、关键词</td><td>Reddit</td><td>subreddit、用户名或关键词</td><td>公开 API；OAuth 可选</td></tr>
+              <tr><td>Discourse 论坛</td><td>linux.do / macos.do</td><td>分类、标签或最新</td><td>部分版块需要 Cookie</td></tr>
+              <tr><td>Telegram / Discord 频道</td><td>Telegram / Discord</td><td>频道或服务器</td><td>Bot / Telethon 凭据可选</td></tr>
+            </tbody>
+          </table></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><h2>常见问题</h2><span class="tip">先看这里，少走弯路</span></div>
+          <div class="faq-list">
+            <details><summary>为什么创建了来源，采集不到内容？</summary><p>来源只是“从哪里采”，还需要在平台详情里创建规则。规则决定采什么；没有规则就不会产生内容。</p></details>
+            <details><summary>GitHub 分支代码怎么采？</summary><p>在 GitHub 规则里勾选“分支提交 / 代码改动”。分支留空表示默认分支；也可以填 <code>main, dev</code>。系统会采集提交信息、变更文件摘要和 patch 片段。</p></details>
+            <details><summary>代码改动太多或触发限流怎么办？</summary><p>默认每轮最多补丁 10 个提交、每个提交 20 个文件、每个文件 2000 字符。触发 403/429 时提交仍会入库，代码改动标记为暂不可用，不会让整次采集失败。</p></details>
+            <details><summary>为什么通知里没有内容？</summary><p>通知只对开启了“新内容”通知的规则生成。先检查规则的“通知”开关，再确认内容确实首次入库。</p></details>
+            <details><summary>高级 JSON 什么时候用？</summary><p>只有需要 labels、state、分页上限或自定义匹配时才打开“显示高级选项”。常用 GitHub、arXiv、Reddit 任务不需要 JSON。</p></details>
+          </div>
+        </section>
+      </section>
+
+      <!-- 设置 -->
+      <section class="view" id="view-settings">
+        <header class="page-head">
+          <div>
+            <h1>设置</h1>
+            <p class="sub">LLM 服务与流水线参数（保存后写入 .env，重启仍生效）</p>
+          </div>
+          <div class="head-actions">
+            <button class="btn ghost" id="btnTestLLM">测试 LLM 连接</button>
+            <button class="btn primary" id="btnSaveSettings">保存设置</button>
+          </div>
+        </header>
+        <div class="settings-grid">
+          <div class="panel">
+            <div class="panel-head"><h2>LLM 服务</h2></div>
+            <div class="form">
+              <label>Base URL<div class="tip">OpenAI 兼容接口地址</div>
+                <input id="setBaseUrl" placeholder="https://api.deepseek.com/v1" />
+              </label>
+              <label>API Key<div class="tip">留空则无法分析与创作</div>
+                <input id="setApiKey" type="password" placeholder="sk-..." />
+              </label>
+              <label>模型<div class="tip">如 deepseek-chat / gpt-4o</div>
+                <input id="setModel" placeholder="deepseek-chat" />
+              </label>
+              <label>素材筛选阈值<div class="tip">创意评分低于该值不进入素材库 (0-100)</div>
+                <input id="setThreshold" type="number" min="0" max="100" />
+              </label>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>流水线</h2></div>
+            <div class="form">
+              <label>抓取间隔（分钟）<div class="tip">定时抓取并分析一轮</div>
+                <input id="setInterval" type="number" min="1" />
+              </label>
+              <label>每账号抓取条数
+                <input id="setPerAccount" type="number" min="1" max="100" />
+              </label>
+              <label>抓取模式
+                <select id="setMode">
+                  <option value="auto">auto · 有登录账号则真实抓取，否则演示数据</option>
+                  <option value="mock">mock · 强制演示数据</option>
+                  <option value="real">real · 强制真实抓取</option>
+                </select>
+              </label>
+              <label>默认监控账号<div class="tip">逗号分隔；账号为空时作为初始种子</div>
+                <input id="setAccounts" placeholder="karpathy,sama,ylecun" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 快速开始向导 -->
+  <div class="modal-mask" id="quickStartModal" hidden>
+    <div class="modal modal-lg quick-start-modal" role="dialog" aria-modal="true" aria-labelledby="quickStartTitle">
+      <div class="modal-head">
+        <div><h3 id="quickStartTitle">快速开始</h3><p class="sub" id="quickStartSub">三步创建第一个采集任务</p></div>
+        <button class="modal-x" type="button" id="quickStartClose" aria-label="关闭快速开始">×</button>
+      </div>
+      <div class="quick-start-steps" id="quickStartSteps"></div>
+      <div id="quickStartBody"></div>
+      <div class="modal-foot quick-start-foot" id="quickStartActions"></div>
+    </div>
+  </div>
+
+  <!-- 创作类型弹窗 -->
+  <div class="modal-mask" id="createModal" hidden>
+    <div class="modal">
+      <h3>开始创作</h3>
+      <p class="sub" id="createModalSub">选择要生成的内容类型</p>
+      <div class="type-options">
+        <button class="type-opt" data-type="article">
+          <div class="type-ico" aria-hidden="true">A</div>
+          <div class="type-name">文章</div>
+          <div class="type-desc">深度长文 · 可直接编辑发布</div>
+        </button>
+        <button class="type-opt" data-type="image">
+          <div class="type-ico" aria-hidden="true">I</div>
+          <div class="type-name">配图</div>
+          <div class="type-desc">视觉方案 · 文生图提示词</div>
+        </button>
+        <button class="type-opt" data-type="video_script">
+          <div class="type-ico" aria-hidden="true">V</div>
+          <div class="type-name">视频脚本</div>
+          <div class="type-desc">60s 短视频分镜 · 口播台词</div>
+        </button>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="closeModal">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toasts" role="status" aria-live="polite"></div>
+
+  <script src="/app.js?v=15"></script>
+</body>
+</html>

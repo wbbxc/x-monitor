@@ -1,0 +1,56 @@
+{
+  "checks": [
+    {
+      "step": "分类/标签展示",
+      "options": 13,
+      "categoryChips": 50,
+      "tagChips": 99,
+      "total": "131",
+      "overflow": 0
+    },
+    {
+      "step": "按分类筛选",
+      "items": 50,
+      "pager": "← 上一页 第 1 / 2 页 · 共 60 条 · 每页 50 条 下一页 →",
+      "total": "60"
+    },
+    {
+      "step": "按标签筛选",
+      "items": 25,
+      "total": "25",
+      "tags": [
+        "搞七捻三",
+        "纯水",
+        "人工智能",
+        "搞七捻三",
+        "快问快答",
+        "人工智能",
+        "ChatGPT",
+        "搞七捻三"
+      ]
+    },
+    {
+      "step": "搜索标签关键词",
+      "items": 50,
+      "total": "70"
+    },
+    {
+      "step": "详情页分类/标签",
+      "meta": "linux.do · stardeep · 2026-10-18T13:45:22.717Z · 搞七捻三 · #纯水 · #人工智能",
+      "title": "也是被claude钓上了，max20x超烂环境开赌",
+      "ok": true
+    },
+    {
+      "step": "移动端筛选",
+      "overflow": 0,
+      "items": 25,
+      "filters": 2
+    }
+  ],
+  "screenshots": [
+    "linuxdo-desktop.png",
+    "linuxdo-filter-desktop.png",
+    "detail page (not captured)",
+    "linuxdo-filter-mobile.png"
+  ]
+}

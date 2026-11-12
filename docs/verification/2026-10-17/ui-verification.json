@@ -1,0 +1,151 @@
+[
+  {
+    "route": "overview",
+    "label": "desktop",
+    "url": "#/collections",
+    "overflow": 0,
+    "activeView": [
+      "view-collections"
+    ],
+    "wide": [],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "overview",
+    "label": "mobile",
+    "url": "#/collections",
+    "overflow": 0,
+    "activeView": [
+      "view-collections"
+    ],
+    "wide": [
+      "table.log-table",
+      "thead.",
+      "tr.",
+      "th.",
+      "th."
+    ],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "platform",
+    "label": "desktop",
+    "url": "#/collections/arxiv",
+    "overflow": 0,
+    "activeView": [
+      "view-collection-platform"
+    ],
+    "wide": [],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "platform",
+    "label": "mobile",
+    "url": "#/collections/arxiv",
+    "overflow": 0,
+    "activeView": [
+      "view-collection-platform"
+    ],
+    "wide": [
+      "a.platform-chip",
+      "table.log-table",
+      "thead.",
+      "tr.",
+      "th."
+    ],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "detail",
+    "label": "desktop",
+    "url": "#/collections/arxiv/items/1",
+    "overflow": 0,
+    "activeView": [
+      "view-collection-detail"
+    ],
+    "wide": [],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "detail",
+    "label": "mobile",
+    "url": "#/collections/arxiv/items/1",
+    "overflow": 0,
+    "activeView": [
+      "view-collection-detail"
+    ],
+    "wide": [],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "settings",
+    "label": "desktop",
+    "url": "#/settings/collectors",
+    "overflow": 0,
+    "activeView": [
+      "view-collector-settings"
+    ],
+    "wide": [],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "route": "settings",
+    "label": "mobile",
+    "url": "#/settings/collectors",
+    "overflow": 0,
+    "activeView": [
+      "view-collector-settings"
+    ],
+    "wide": [],
+    "title": "X-Monitor · AI 素材监控系统",
+    "errors": []
+  },
+  {
+    "flow": {
+      "steps": [
+        {
+          "step": "平台下拉已填充",
+          "ok": false
+        },
+        {
+          "step": "新增采集源并写入加密认证",
+          "ok": true,
+          "sourceId": 9,
+          "auth": {
+            "type": "headers",
+            "configured": true,
+            "metadata": {
+              "label": ""
+            },
+            "created_at": "2026-10-17 21:46:35",
+            "updated_at": "2026-10-17 21:46:35"
+          }
+        },
+        {
+          "step": "认证状态脱敏展示",
+          "ok": true
+        },
+        {
+          "step": "新增定时规则",
+          "ok": true
+        },
+        {
+          "step": "平台页显示新增源",
+          "ok": true
+        },
+        {
+          "step": "平台页暂停后状态刷新",
+          "ok": true
+        }
+      ],
+      "errors": []
+    }
+  }
+]

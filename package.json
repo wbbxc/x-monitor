@@ -1,0 +1,17 @@
+{
+  "name": "x-monitor",
+  "version": "1.0.0",
+  "description": "X 平台 AI 账号监控系统：定时抓取 → LLM 素材分析 → 人工确认 → 一键自动创作",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --import ./test/isolate-env.js --test test/*.test.js",
+    "worker": "python3 python/worker.py"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "license": "MIT"
+}

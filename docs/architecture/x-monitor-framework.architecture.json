@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "X-Monitor 框架与运行架构",
+    "locale": "zh-CN",
+    "output": "x-monitor-framework.architecture.html",
+    "viewBox": [1395, 900],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "runtime-path",
+        "label": "当前运行链路",
+        "focus": ["browser", "server", "scheduler", "scraper", "worker", "x-source", "store"],
+        "note": "从浏览器入口跟随 Node.js 调度和 Python worker，直到 X 数据与 SQLite。"
+      },
+      {
+        "id": "intelligence-path",
+        "label": "分析与创作",
+        "focus": ["store", "analyzer", "llm", "creator", "server"],
+        "note": "查看素材分析、LLM 调用和文章、图片、视频脚本创作路径。"
+      },
+      {
+        "id": "collection-path",
+        "label": "统一采集路径",
+        "focus": ["scheduler", "collector-sources", "collectors", "store"],
+        "note": "查看定时规则、紧急任务、平台适配器、认证和统一采集表的运行路径。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "浏览器单页 UI",
+      "sublabel": "web UI",
+      "tag": "frontend",
+      "pos": [40, 330],
+      "size": [170, 72]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "src/server.js",
+      "sublabel": "Node HTTP · REST + 静态资源",
+      "tag": "入口",
+      "pos": [260, 330],
+      "size": [190, 72]
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "src/scheduler.js",
+      "sublabel": "定时抓取 → 分析流水线",
+      "tag": "setTimeout · collection rules",
+      "pos": [500, 330],
+      "size": [190, 72]
+    },
+    {
+      "id": "scraper",
+      "type": "backend",
+      "label": "src/scraper.js",
+      "sublabel": "选择 real / mock 并启动 worker",
+      "tag": "桥接",
+      "pos": [740, 330],
+      "size": [190, 72]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "python/worker.py",
+      "sublabel": "twscrape · mock JSON",
+      "tag": "Python",
+      "pos": [980, 330],
+      "size": [190, 72]
+    },
+    {
+      "id": "x-source",
+      "type": "external",
+      "label": "X 数据源",
+      "sublabel": "真实账号 / mock_tweets.json",
+      "tag": "外部",
+      "pos": [1200, 330],
+      "size": [170, 72]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "SQLite",
+      "sublabel": "src/db.js · data/xmonitor.db",
+      "tag": "accounts · tweets · materials · collection_items",
+      "pos": [740, 120],
+      "size": [190, 72]
+    },
+    {
+      "id": "analyzer",
+      "type": "backend",
+      "label": "src/analyzer.js",
+      "sublabel": "新推文 → 素材分析",
+      "tag": "chatJson",
+      "pos": [980, 120],
+      "size": [190, 72]
+    },
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM API",
+      "sublabel": "src/llm.js · OpenAI-compatible",
+      "tag": "可选 Key",
+      "pos": [1200, 120],
+      "size": [170, 72]
+    },
+    {
+      "id": "creator",
+      "type": "backend",
+      "label": "src/creator.js",
+      "sublabel": "文章 · 图片 · 视频脚本",
+      "tag": "人工确认后",
+      "pos": [980, 540],
+      "size": [190, 72]
+    },
+    {
+      "id": "collector-sources",
+      "type": "external",
+      "label": "统一外部来源",
+      "sublabel": "Google · Web · HF · arXiv · forums · TG",
+      "tag": "外部来源",
+      "pos": [500, 730],
+      "size": [220, 72]
+    },
+    {
+      "id": "collectors",
+      "type": "backend",
+      "label": "src/collectors/framework.js",
+      "sublabel": "注册适配器 · 规范化 · 去重 · 加密认证",
+      "tag": "web / HF / arXiv / forums / Telegram",
+      "pos": [800, 730],
+      "size": [250, 72]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "当前 Node.js 应用边界",
+      "wraps": ["server", "scheduler", "scraper", "store", "analyzer", "creator", "collectors"],
+      "pad": 28
+    },
+    {
+      "kind": "region",
+      "label": "统一采集外部来源",
+      "wraps": ["collector-sources", "collectors"],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "browser-server",
+      "from": "browser",
+      "to": "server",
+      "label": "HTTP / 静态资源",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -56
+    },
+    {
+      "id": "server-scheduler",
+      "from": "server",
+      "to": "scheduler",
+      "label": "启动 + /api/run + /api/collections",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -56
+    },
+    {
+      "id": "scheduler-scraper",
+      "from": "scheduler",
+      "to": "scraper",
+      "label": "X 定时抓取 + 采集规则",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -56
+    },
+    {
+      "id": "scraper-worker",
+      "from": "scraper",
+      "to": "worker",
+      "label": "spawn worker.py",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -56
+    },
+    {
+      "id": "worker-x",
+      "from": "worker",
+      "to": "x-source",
+      "label": "twscrape / mock",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -56
+    },
+    {
+      "id": "scheduler-store",
+      "from": "scheduler",
+      "to": "store",
+      "label": "写入 tweets / logs",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "via": [[595, 270], [835, 270]],
+      "labelAt": [715, 252]
+    },
+    {
+      "id": "store-analyzer",
+      "from": "store",
+      "to": "analyzer",
+      "label": "new tweets",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    },
+    {
+      "id": "analyzer-llm",
+      "from": "analyzer",
+      "to": "llm",
+      "label": "分析请求",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": -56
+    },
+    {
+      "id": "server-creator",
+      "from": "server",
+      "to": "creator",
+      "label": "确认后创作 / retry",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "via": [[355, 500], [1075, 500]],
+      "labelAt": [610, 480]
+    },
+    {
+      "id": "creator-llm",
+      "from": "creator",
+      "to": "llm",
+      "label": "生成请求",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [[1190, 576], [1380, 576], [1380, 156], [1370, 156]],
+      "labelAt": [1360, 460]
+    },
+    {
+      "id": "source-collectors",
+      "from": "collector-sources",
+      "to": "collectors",
+      "label": "RSS / JSON / Atom / HTML",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 56
+    }
+  ]
+}

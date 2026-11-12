@@ -1,0 +1,67 @@
+{
+  "keywords": [
+    {
+      "label": "desktop",
+      "count": 2,
+      "text": "待采集\nAI\nAI 关键词\n手动\n仅手动\n尚未采集\n采集\n已排队\n风控\ngpt 风控 降智\n每 5 分钟\n下次 2026-10-18 13:51\n上次 2026-10-18 13:46\n采集"
+    },
+    {
+      "label": "mobile",
+      "count": 2,
+      "text": "待采集\nAI\nAI 关键词\n手动\n仅手动\n尚未采集\n采集\n已排队\n风控\ngpt 风控 降智\n每 5 分钟\n下次 2026-10-18 13:51\n上次 2026-10-18 13:46\n采集"
+    }
+  ],
+  "pagination": [
+    {
+      "label": "desktop",
+      "page": 1,
+      "items": 50,
+      "pager": "← 上一页 第 1 / 3 页 · 共 131 条 · 每页 50 条 下一页 →"
+    },
+    {
+      "label": "desktop",
+      "page": 2,
+      "items": 50,
+      "pager": "← 上一页 第 2 / 3 页 · 共 131 条 · 每页 50 条 下一页 →"
+    },
+    {
+      "label": "mobile",
+      "page": 1,
+      "items": 50,
+      "pager": "← 上一页 第 1 / 3 页 · 共 131 条 · 每页 50 条 下一页 →"
+    },
+    {
+      "label": "mobile",
+      "page": 2,
+      "items": 50,
+      "pager": "← 上一页 第 2 / 3 页 · 共 131 条 · 每页 50 条 下一页 →"
+    }
+  ],
+  "modals": [
+    {
+      "name": "counts",
+      "label": "desktop",
+      "visible": true,
+      "cards": 6
+    },
+    {
+      "name": "settings",
+      "label": "desktop",
+      "visible": true,
+      "rules": 2
+    },
+    {
+      "name": "counts",
+      "label": "mobile",
+      "visible": true,
+      "cards": 6
+    },
+    {
+      "name": "settings",
+      "label": "mobile",
+      "visible": true,
+      "rules": 2
+    }
+  ],
+  "errors": []
+}

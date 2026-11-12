@@ -1,0 +1,55 @@
+# 依赖
+node_modules/
+
+# 运行时数据
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# 环境配置（含 API Key，切勿提交）
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# X 登录凭据
+python/accounts.json
+python/accounts.json.*
+python/accounts.db*
+
+# 本地认证导出、会话与私钥（只保留明确的测试证书夹具）
+cookies.json
+cookies.*.json
+credentials.json
+credentials.*.json
+storage-state.json
+*.session
+*.session-journal
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+id_ecdsa
+secrets/
+private/
+backups/
+!test/fixtures/proxy-test-cert.pem
+!test/fixtures/proxy-test-key.pem
+
+# Python 虚拟环境
+python/.venv/
+__pycache__/
+*.pyc
+
+# 运行状态
+python/.mock_state.json
+
+# 系统文件
+.DS_Store
+*.log
+
+# 浏览器验收产物（本地产物，不入库）
+.playwright-cli/
